@@ -3,11 +3,14 @@ name: Terraform Workflow
 on:
   push:
     branches:
-      - main   # ou qualquer branch que você deseja rodar o Terraform
+      - main  # ou qualquer branch que você deseja rodar o Terraform
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-east-1  # Definindo a região da AWS
 
     steps:
     - name: Checkout code
@@ -18,12 +21,13 @@ jobs:
       with:
         terraform_version: 1.5.0   # ou a versão que você deseja
 
-    - name: AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v2
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
       with:
-        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Use secrets para as credenciais
-        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Use secrets para as credenciais
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}  # Usando a variável de ambiente AWS_REGION
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}  # Se você estiver usando sessão temporária
 
     - name: Terraform Init
       run: terraform init
